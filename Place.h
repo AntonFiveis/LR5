@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+using std::vector;
 using std::string;
 struct Rect {
 	double longitude;
@@ -16,9 +18,28 @@ private:
 	string subType;
 	Rect coord;
 public:
-	Place(string, string, string, Rect);
+	Place(Rect,string, string, string);
 	string getName() { return name; };
 	string getType() { return Type; };
 	string getSubType() { return subType; };
 	Rect getRect() { return coord; };
+};
+
+class Node {
+private:
+	Rect rect;
+	vector<Node*> children;
+public:
+	Place* place;
+	Node();
+	Node(Rect);
+	Node(Place);
+	void addChild(Node*);
+	vector<Node*> getChildren() { return children; }
+	void clearChildren() { children.clear(); }
+	Rect getRect() { return rect; }
+	int getChildrenNumb() { return children.size(); }
+	~Node() {
+		delete place;
+	}
 };
