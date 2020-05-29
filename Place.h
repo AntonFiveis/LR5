@@ -8,8 +8,10 @@ struct Rect {
 	double latitude;
 	double width;
 	double height;
-	Rect(double, double, double, double);
+	Rect() { longitude = latitude = width = height = 0; }
+	Rect(double, double, double w =0, double h=0);
 };
+Rect operator+(Rect,Rect);
 class Place
 {
 private:

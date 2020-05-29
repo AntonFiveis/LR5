@@ -22,7 +22,12 @@ Node::Node(Place pl):rect(pl.getRect())
 void Node::addChild(Node* node)
 {
 	children.push_back(node);
-	Rect n_rect = node->getRect();
+	rect = rect + node->getRect();
+}
+
+Rect operator+(Rect rect,Rect n_rect)
+{
+	
 	if (rect.longitude > n_rect.longitude) {
 		rect.width = rect.longitude + rect.width - n_rect.longitude;
 		rect.longitude = n_rect.longitude;
@@ -37,4 +42,5 @@ void Node::addChild(Node* node)
 	if (rect.latitude + rect.height < n_rect.latitude + n_rect.height) {
 		rect.height = n_rect.latitude + n_rect.height - rect.latitude;
 	}
+	return rect;
 }
