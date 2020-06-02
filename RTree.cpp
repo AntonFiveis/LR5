@@ -21,6 +21,9 @@ double distance(Rect point1, Rect point2) {
 }
 
 bool colliseInRadius(Node* node, Rect point, double radius) {
+	if (node == nullptr)
+		return false;
+
 	auto n_rect = node->getRect();
 	
 	if (point.latitude < n_rect.latitude) {
@@ -79,6 +82,8 @@ bool colliseInRadius(Node* node, Rect point, double radius) {
 }
 
 bool colliseWithRect(Node* node, Rect point, double a) {
+	if (node == nullptr)
+		return false;
 	auto n_rect = node->getRect();
 	if (point.latitude < n_rect.latitude) {
 		if (point.longitude < n_rect.longitude) {
@@ -152,12 +157,13 @@ double strToDouble(string s) {
 
 void RTree::createTreeFromFile(string file_name)
 {
+	setlocale(LC_ALL, "rus");
 	ifstream iFile(file_name);
 	
 	while (!iFile.eof()) {
 		double lo, la;
 		string slo, sla;
-		string Type, subType, adress;
+		string Type, subType, name,adress;
 		getline(iFile, sla, ';');
 		if (sla.length() == 0) break;
 		la = strToDouble(sla);
@@ -167,9 +173,10 @@ void RTree::createTreeFromFile(string file_name)
 		getline(iFile,Type, ';');
 
 		getline(iFile,subType, ';');
+		getline(iFile,name, ';');
 		
 		getline(iFile, adress);
-		Node* node = new Node(Place(Rect(la,lo), Type, subType, adress));
+		Node* node = new Node(Place(Rect(la,lo), Type, subType,name, adress));
 		if (root == nullptr) {
 			root = new Node(Rect(la,lo));
 		}
@@ -180,24 +187,19 @@ void RTree::createTreeFromFile(string file_name)
 
 void RTree::splitToTwo(Node* node)
 {
-	try {
-		if (root && node->getChildrenNumb() > MAXNODESIZE) {
-			auto n_rect = node->getRect();
-			vector<Node*> new_children;
-			if (n_rect.height > n_rect.width) {
-				new_children = splitHorizontal(node);
-			}
-			else {
-				new_children = splitVertical(node);
-			}
-			for (int i = 0; i < new_children.size(); i++) {
-				node->addChild(new_children[i]);
-				splitToTwo(new_children[i]);
-			}
+	if (root && node->getChildrenNumb() > MAXNODESIZE) {
+		auto n_rect = node->getRect();
+		vector<Node*> new_children;
+		if (n_rect.height > n_rect.width) {
+			new_children = splitHorizontal(node);
 		}
-	}
-	catch (exception e) {
-		int x = 0;
+		else {
+			new_children = splitVertical(node);
+		}
+		for (int i = 0; i < new_children.size(); i++) {
+			node->addChild(new_children[i]);
+			splitToTwo(new_children[i]);
+		}
 	}
 }
 
@@ -205,7 +207,8 @@ vector<Node*> RTree::splitHorizontal(Node* node) {
 	auto children = node->getChildren();
 	node->clearChildren();
 	double mid_height = node->getRect().latitude + node->getRect().height / 2;
-	Rect rect((node->getRect().latitude),(node->getRect().longitude));
+	Rect rect = node->getRect();
+	rect.width = rect.height = 0;
 	vector<Node*> nodes(2);
 	nodes[0] = new Node(rect);
 	nodes[1] = new Node(Rect(mid_height,node->getRect().longitude));
@@ -217,10 +220,14 @@ vector<Node*> RTree::splitHorizontal(Node* node) {
 			nodes[1]->addChild(i);
 		}
 	}
-	if (nodes[0]->getChildrenNumb() == 0)
+	if (nodes[0]->getChildrenNumb() == 0 && nodes[0]->place != nullptr) {
 		delete nodes[0];
-	if (nodes[1]->getChildrenNumb() == 0)
+		nodes[0] = nullptr;
+	}
+	if (nodes[1]->getChildrenNumb() == 0 && nodes[1]->place != nullptr) {
 		delete nodes[1];
+		nodes[1] = nullptr;
+	}
 	return nodes;
 }
 
@@ -228,23 +235,27 @@ vector<Node*> RTree::splitVertical(Node* node) {
 	auto children = node->getChildren();
 	node->clearChildren();
 	double mid_width = node->getRect().longitude + node->getRect().width / 2;
-	Rect rect(node->getRect().longitude, node->getRect().latitude);
+	Rect rect = node->getRect();
+	rect.height = rect.width = 0;
 	vector<Node*> nodes(2);
 	nodes[0] = new Node(rect);
 	nodes[1] = new Node(Rect(mid_width, node->getRect().latitude));
 	for (auto i : children) {
-		if ((rect + (i->getRect())).width < mid_width- node->getRect().longitude) {
+		if ((rect + (i->getRect())).width < mid_width - node->getRect().longitude) {
 			nodes[0]->addChild(i);
 		}
 		else {
 			nodes[1]->addChild(i);
 		}
 	}
-	if (nodes[0]->getChildrenNumb() == 0) {
+	if (nodes[0]->getChildrenNumb() == 0 && nodes[0]->place != nullptr) {
 		delete nodes[0];
+		nodes[0] = nullptr;
 	}
-	if (nodes[1]->getChildrenNumb() == 0)
+	if (nodes[1]->getChildrenNumb() == 0&& nodes[1]->place != nullptr) {
 		delete nodes[1];
+		nodes[1] = nullptr;
+	}
 	return nodes;
 }
 

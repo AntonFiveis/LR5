@@ -1,7 +1,7 @@
 #include "Place.h"
 
-Place::Place(Rect r,string name="", string Type="", string subType=""):
-	name(name),Type(Type),subType(subType), coord(r){}
+Place::Place(Rect r,string Type="", string subType="",string name="",string adress =""):
+	name(name),Type(Type),subType(subType),adress(adress), coord(r){}
 
 Rect::Rect(double la, double lo, double w , double h ):
 latitude(la),longitude(lo),width(w),height(h){}

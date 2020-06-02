@@ -18,9 +18,11 @@ private:
 	string name;
 	string Type;
 	string subType;
+	string adress;
 	Rect coord;
 public:
-	Place(Rect,string, string, string);
+	Place(Rect,string, string,string, string);
+	string getAdress() { return adress; }
 	string getName() { return name; };
 	string getType() { return Type; };
 	string getSubType() { return subType; };
