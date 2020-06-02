@@ -9,7 +9,7 @@ struct Rect {
 	double width;
 	double height;
 	Rect() { longitude = latitude = width = height = 0; }
-	Rect(double, double, double w =0, double h=0);
+	Rect(double la, double lo, double w =0, double h=0);
 };
 Rect operator+(Rect,Rect);
 class Place
